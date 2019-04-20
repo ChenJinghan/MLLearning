@@ -10,7 +10,7 @@ y_data = [640., 633., 619., 393., 428., 27., 193., 66., 226., 1691]
 
 # y_data = b + w * x_data
 
-# initial b and w
+# Step1: initial b and w
 b = -120
 w = -4
 # learning rate
@@ -20,16 +20,18 @@ w_his = []
 b_his = []
 
 # iterations
+# goodness of function F
 # get the value of w and b, using Gradient Descent
 for i in range(iteration):
     b_grad = 0.0
     w_grad = 0.0
 
+    # Step2.1: partial derivative of function F with respect to variable w and b
     for j in range(len(x_data)):
         w_grad = w_grad + 2 * (y_data[j] - (b + w * x_data[j])) * (-x_data[j])
         b_grad = b_grad + 2 * (y_data[j] - (b + w * x_data[j])) * (-1)
 
-    # update w and b
+    # Step2.2: update w and b
     w = w - lr * w_grad
     b = b - lr * b_grad
 
