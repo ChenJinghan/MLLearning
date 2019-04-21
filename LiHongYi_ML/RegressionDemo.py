@@ -45,7 +45,9 @@ x = np.arange(-200,-100,1)
 # weight
 y = np.arange(-5,5,0.1)
 Z = np.zeros((len(x),len(y)))
+# grid
 X,Y = np.meshgrid(x,y)
+
 for i in range(len(x)):
     for j in range(len(y)):
         b = x[i]
@@ -55,6 +57,11 @@ for i in range(len(x)):
             Z[j][i] = Z[j][i] + (y_data[n] - b - w * x_data[n]) ** 2
         Z[j][i] = Z[j][i] / len(x_data)
 
+# draw filled contour
+# x,y specify the (x,y) coordinates of the surface
+# Z：Hight?
+# the alpha bleding value(颜色填充范围)
+# colormap
 plt.contourf(x,y,Z, 50, alpha = 0.5, cmap = plt.get_cmap('jet'))
 plt.plot([-188.4],[2.67],'x',ms=12, markeredgewidth=3, color ='black')
 plt.plot(b_his, w_his,'o-',ms=3, lw=1.5, color = 'black')
