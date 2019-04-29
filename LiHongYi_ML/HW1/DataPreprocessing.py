@@ -13,7 +13,7 @@ class DataPreprocessing:
 
     def get_training_data(self):
         """
-        读取训练数据
+        get training data
         原始数据中一共给出18维的‘feature’
         tips：
         注意validation data的合理划分
@@ -61,26 +61,25 @@ class DataPreprocessing:
         # y list
         y_lst = []
         df = df.drop(columns='Date').drop(columns='item')
+        # df_val = df.values
         # 按每天的feature循环，一天18个feature
         for i in range(0, (len(df) / 18)):
             # 按天循环，用前9天预测第10天的PM2.5
             for j in range(0, 15):
-                temp_df = df.iloc[i * 18:(i + 1) * 18, j:j + 9]
-                df_lst.append(temp_df)
-                # print([i*18+9 , j+9])
+                df_lst.append(df.iloc[i * 18 + 9, j:j + 9])
                 y_lst.append(df.iloc[i * 18 + 9, j + 9])
         return df_lst, y_lst
 
     def choose_validation_data(self, x_data, y_data):
         """
         从train.csv给出的数据中，划分training data和validation data
-        :param x_data: feature
-        :param y_data: label
+        :param x_data: feature list (每个元素均为df)
+        :param y_data: label(每个元素均为具体值)
         :return: training data, training label, validation data, validation label
         """
-        # 随机选出1000个作为validation的部分
+        # 随机选出1500个作为validation的部分
         vali_index_set = set()
-        while len(vali_index_set) < 1000:
+        while len(vali_index_set) < 1500:
             vali_index_set.add(random.randint(0, len(x_data) - 1))
         vali_index_lst = list(vali_index_set)
         vali_index_lst.sort()
@@ -94,29 +93,40 @@ class DataPreprocessing:
         # 根据随机数进行划分
         idx = 0
         for i in range(0, len(x_data)):
+            # 最后一个随机数已取
             if idx == len(vali_index_lst):
                 for d in x_data[i:len(x_data)]:
                     train_data.append(d)
                 for l in y_data[i:len(y_data)]:
                     train_label.append(l)
-                # train_data.append(d for d in x_data[i:len(x_data)])
-                # train_label.append(l for l in y_data[i:len(y_data)])
                 break
             else:
+                # 如果样本下标在随机数列表
                 if i == vali_index_lst[idx]:
                     validate_data.append(x_data[i])
                     validate_label.append(y_data[i])
                     idx += 1
+                # 如果样本下标不在随机数列表
                 else:
                     train_data.append(x_data[i])
                     train_label.append(y_data[i])
 
-        # print("train_data: ", train_data)
-        # print("train_label: ", train_label)
-        # print("vali_data: ", validate_data)
-        # print("vali_label: ", validate_label)
         return train_data, train_label, validate_data, validate_label
 
+    def get_testing_data(self):
+        data = pd.read_csv('test.csv', header=None, dtype='str',
+                        names=['ID','item', 'h0', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'h8'])
+        data = data.drop(columns='item').drop(columns='ID')
+        df_lst = []
+        for i in range(0, (len(data) / 18)):
+            df_lst.append([np.double(i) for i in list(data.iloc[i * 18 + 9, :].values)])
+        return df_lst
 
-obj = DataPreprocessing()
-obj.get_training_data()
+    def get_answer(self):
+        ans = pd.read_csv('ans.csv',header=0,names=['id','value']).drop(columns='id')
+        ans = [np.double(i) for i in ans.values.reshape(1,len(ans))[0]]
+        return ans
+
+if __name__ == '__main__':
+    obj = DataPreprocessing()
+    obj.get_answer()
